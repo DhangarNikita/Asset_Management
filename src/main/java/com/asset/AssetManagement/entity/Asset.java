@@ -34,8 +34,8 @@ public class Asset {
     private LocalDate expireDate;
     private LocalDate purchaseDate;
 
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal cost;
+    @Column(nullable = true)
+    private String assignTo;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
@@ -56,4 +56,3 @@ public class Asset {
     @JoinColumn(name = "employee_id", referencedColumnName = "employeeId")
     private Employee employee;
 }
-

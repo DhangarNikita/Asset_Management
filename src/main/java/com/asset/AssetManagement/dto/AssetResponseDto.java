@@ -23,7 +23,7 @@ public class AssetResponseDto {
     private LocalDate manufactureDate;
     private LocalDate expireDate;
     private LocalDate purchaseDate;
-    private BigDecimal cost;
+    private String assignTo;
     private AssetStatus status;
     private AssetType type;
     private Long employeeId;

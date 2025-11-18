@@ -3,12 +3,14 @@ package com.asset.AssetManagement.dto;
 import com.asset.AssetManagement.enums.AssetStatus;
 import com.asset.AssetManagement.enums.AssetType;
 import jakarta.validation.constraints.*;
+import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
+@Builder
 public class AssetRequestDto {
 
     @NotBlank(message = "Model name is required")
@@ -26,9 +28,7 @@ public class AssetRequestDto {
     @PastOrPresent(message = "Purchase date cannot be in the future")
     private LocalDate purchaseDate;
 
-    @NotNull(message = "Cost is required")
-    @DecimalMin(value = "0.0", inclusive = false, message = "Cost must be greater than 0")
-    private BigDecimal cost;
+    private String assignTo;
 
     private AssetStatus status = AssetStatus.ACTIVE;
 
