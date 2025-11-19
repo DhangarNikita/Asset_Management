@@ -2,11 +2,12 @@ package com.asset.AssetManagement.dto;
 
 import com.asset.AssetManagement.enums.AssetStatus;
 import com.asset.AssetManagement.enums.AssetType;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.Builder;
 import lombok.Data;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -34,6 +35,6 @@ public class AssetRequestDto {
 
     private AssetType type = AssetType.OTHER;
 
-   // @NotNull(message = "Employee ID is required")
+    // @NotNull(message = "Employee ID is required")
     private Long employeeId;
 }
