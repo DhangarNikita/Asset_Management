@@ -10,6 +10,7 @@ import com.asset.AssetManagement.entity.Asset;
 import com.asset.AssetManagement.entity.Employee;
 import com.asset.AssetManagement.enums.AssetStatus;
 import com.asset.AssetManagement.enums.AssetType;
+import com.asset.AssetManagement.exception.ResourceNotFoundException;
 import com.asset.AssetManagement.repository.AssetRepository;
 import com.asset.AssetManagement.repository.EmployeeRepository;
 import com.asset.AssetManagement.service.Impl.AssetServiceImpl;
@@ -24,6 +25,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -42,7 +44,7 @@ class AssetServiceImplTest {
     private AssetServiceImpl assetService;
 
     @Test
-    void testCreateAsset_Success() {
+    void testCreateAsset() {
         AssetRequestDto dto = new AssetRequestDto();
         dto.setModelName("ModelX");
         dto.setSerialName("SN123");
@@ -85,7 +87,7 @@ class AssetServiceImplTest {
     }
 
     @Test
-    void testCreateAsset_WithoutEmployee_Success() {
+    void testCreateAssetWithoutEmployee() {
         AssetRequestDto dto = new AssetRequestDto();
         dto.setModelName("ModelY");
         dto.setSerialName("SN456");
@@ -109,37 +111,30 @@ class AssetServiceImplTest {
 
         AssetResponseDto responseDto = new AssetResponseDto();
         responseDto.setModelName("ModelY");
-
         when(assetRepository.save(any(Asset.class))).thenReturn(asset);
         when(modelMapper.map(any(Asset.class), eq(AssetResponseDto.class))).thenReturn(responseDto);
-
         AssetResponseDto result = assetService.createAsset(dto);
-
         assertNotNull(result);
         assertEquals("ModelY", result.getModelName());
         verify(assetRepository).save(any(Asset.class));
     }
 
     @Test
-    void testCreateAsset_EmployeeNotFound() {
+    void testCreateAssetEmployeeNotFound() {
         AssetRequestDto dto = new AssetRequestDto();
         dto.setModelName("ModelZ");
         dto.setSerialName("SN789");
         dto.setEmployeeId(99L);
-
         when(employeeRepository.findById(99L)).thenReturn(java.util.Optional.empty());
-
         Exception exception = assertThrows(RuntimeException.class, () -> {
             assetService.createAsset(dto);
         });
-
         assertEquals("Employee not found", exception.getMessage());
         verify(assetRepository, never()).save(any(Asset.class));
     }
 
-
     @Test
-    void testGetAsset_Success() {
+    void testGetAssetSuccess() {
         Long assetId = 1L;
         Asset asset = Asset.builder()
                 .modelName("ModelX")
@@ -149,11 +144,10 @@ class AssetServiceImplTest {
         AssetResponseDto responseDto = new AssetResponseDto();
         responseDto.setModelName("ModelX");
 
-        when(assetRepository.findById(assetId)).thenReturn(java.util.Optional.of(asset));
+        when(assetRepository.findById(assetId)).thenReturn(Optional.of(asset));
         when(modelMapper.map(asset, AssetResponseDto.class)).thenReturn(responseDto);
 
         AssetResponseDto result = assetService.getAsset(assetId);
-
         assertNotNull(result);
         assertEquals("ModelX", result.getModelName());
         verify(assetRepository).findById(assetId);
@@ -161,7 +155,16 @@ class AssetServiceImplTest {
     }
 
     @Test
-    void testGetAllAsset_Success() {
+    void testGetAssetNotFound() {
+        Long id = 2L;
+        when(assetRepository.findById(id)).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundException.class, () -> assetService.getAsset(id));
+        verify(assetRepository, times(1)).findById(id);
+        verify(modelMapper, never()).map(any(), eq(AssetResponseDto.class));
+    }
+
+    @Test
+    void testGetAllAssetSuccess() {
         Asset asset = Asset.builder()
                 .modelName("ModelX")
                 .serialName("SN123")
@@ -177,7 +180,6 @@ class AssetServiceImplTest {
         when(modelMapper.map(asset, AssetResponseDto.class)).thenReturn(responseDto);
 
         Page<AssetResponseDto> result = assetService.getAllAsset(0, 10);
-
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
         assertEquals("ModelX", result.getContent().get(0).getModelName());
@@ -186,16 +188,14 @@ class AssetServiceImplTest {
     }
 
     @Test
-    void testDeleteAsset_Success() {
+    void testDeleteAssetSuccess() {
         Long assetId = 1L;
-
         assetService.delete(assetId);
-
         verify(assetRepository).deleteById(assetId);
     }
 
     @Test
-    void testUpdateAsset_Success() {
+    void testUpdateAssetSuccess() {
         Long assetId = 1L;
         AssetUpdateDto updateDto = new AssetUpdateDto();
         updateDto.setModelName("UpdatedModel");
@@ -220,7 +220,6 @@ class AssetServiceImplTest {
         when(modelMapper.map(updatedAsset, AssetResponseDto.class)).thenReturn(responseDto);
 
         AssetResponseDto result = assetService.updateAsset(assetId, updateDto);
-
         assertNotNull(result);
         assertEquals("UpdatedModel", result.getModelName());
         assertEquals("UpdatedSN", result.getSerialName());
@@ -230,7 +229,7 @@ class AssetServiceImplTest {
     }
 
     @Test
-    void testAssignAsset_Success() {
+    void testAssignAssetSuccess() {
         Long assetId = 1L;
         Long employeeId = 2L;
 
@@ -253,7 +252,6 @@ class AssetServiceImplTest {
         when(modelMapper.map(asset, AssetResponseDto.class)).thenReturn(responseDto);
 
         AssetResponseDto result = assetService.assignAsset(assetId, employeeId);
-
         assertNotNull(result);
         assertEquals(employeeId, result.getEmployeeId());
         assertEquals("ModelX", result.getModelName());
@@ -262,6 +260,4 @@ class AssetServiceImplTest {
         verify(assetRepository).save(asset);
         verify(modelMapper).map(asset, AssetResponseDto.class);
     }
-
-
 }

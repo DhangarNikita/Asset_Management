@@ -1,5 +1,6 @@
 package com.asset.AssetManagement.service.Impl;
 
+import com.asset.AssetManagement.dao.EmployeeDao;
 import com.asset.AssetManagement.dto.AssetRequestDto;
 import com.asset.AssetManagement.dto.AssetResponseDto;
 import com.asset.AssetManagement.dto.AssetUpdateDto;
@@ -18,37 +19,34 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AssetServiceImpl implements AssetService {
 
+public class AssetServiceImpl implements AssetService {
     private final ModelMapper modelMapper;
     private final AssetRepository assetRepository;
     private final EmployeeRepository employeeRepository;
+    private final EmployeeDao employeeDao;
 
     @Autowired
-    public AssetServiceImpl(AssetRepository assetRepository, EmployeeRepository employeeRepository,ModelMapper modelMapper) {
+    public AssetServiceImpl(AssetRepository assetRepository, EmployeeRepository employeeRepository,ModelMapper modelMapper,EmployeeDao employeeDao) {
+        this.employeeDao = employeeDao;
         this.assetRepository = assetRepository;
         this.employeeRepository = employeeRepository;
         this.modelMapper = modelMapper;
     }
 
     public AssetResponseDto createAsset(AssetRequestDto dto) {
-
-        Asset.AssetBuilder assetBuilder = Asset.builder()
+        Employee employee = employeeDao.getEmployeeOrDefault(dto.getEmployeeId());
+        Asset asset = Asset.builder()
                 .modelName(dto.getModelName())
                 .serialName(dto.getSerialName())
                 .manufactureDate(dto.getManufactureDate())
                 .expireDate(dto.getExpireDate())
                 .purchaseDate(dto.getPurchaseDate())
-                .assignTo(dto.getAssignTo())
+                .assignTo(dto.getAssignTo() != null ? dto.getAssignTo() : "Unassigned")
+                .employee(employee)
                 .status(dto.getStatus())
-                .type(dto.getType());
-
-        if (dto.getEmployeeId() != null) {
-            Employee emp = employeeRepository.findById(dto.getEmployeeId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Employee not found"));
-            assetBuilder.employee(emp);
-        }
-        Asset asset = assetBuilder.build();
+                .type(dto.getType())
+                .build();
         assetRepository.save(asset);
         return modelMapper.map(asset, AssetResponseDto.class);
     }
@@ -58,16 +56,6 @@ public class AssetServiceImpl implements AssetService {
                 .orElseThrow(() -> new ResourceNotFoundException("Asset not found"));
         return modelMapper.map(asset, AssetResponseDto.class);
     }
-
-/*    public List<AssetResponseDto> getAllAsset(){
-        List<Asset> list = assetRepository.findAll();
-        List<AssetResponseDto> asset = new ArrayList<>();
-        for (Asset asset1 : list) {
-            AssetResponseDto dto = modelMapper.map(asset1, AssetResponseDto.class);
-            asset.add(dto);
-        }
-        return asset;
-    }*/
 
     public Page<AssetResponseDto>getAllAsset(int page, int size){
         Pageable pageable = PageRequest.of(page, size);
@@ -82,25 +70,18 @@ public class AssetServiceImpl implements AssetService {
     public AssetResponseDto updateAsset(Long id, AssetUpdateDto dto) {
         Asset asset = assetRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Asset not found"));
-
-        if (ValidatorUtil.isValue(dto.getSerialName()))asset.setSerialName(dto.getSerialName());
-        if (dto.getManufactureDate() != null) asset.setManufactureDate(dto.getManufactureDate());
-        if (dto.getPurchaseDate() != null) asset.setPurchaseDate(dto.getPurchaseDate());
-        if (dto.getExpireDate() != null) asset.setExpireDate(dto.getExpireDate());
-        if (ValidatorUtil.isValue((dto.getModelName()))) asset.setModelName(dto.getModelName());
-        if (dto.getStatus() != null) asset.setStatus(dto.getStatus());
-        if (dto.getType() != null) asset.setType(dto.getType());
+        ValidatorUtil.updateIfValid(dto.getSerialName(), asset::setSerialName);
+        ValidatorUtil.updateIfValid(dto.getModelName(), asset::setModelName);
+        ValidatorUtil.updateIfPresent(dto.getManufactureDate(), asset::setManufactureDate);
+        ValidatorUtil.updateIfPresent(dto.getPurchaseDate(), asset::setPurchaseDate);
+        ValidatorUtil.updateIfPresent(dto.getExpireDate(), asset::setExpireDate);
+        ValidatorUtil.updateIfPresent(dto.getStatus(), asset::setStatus);
+        ValidatorUtil.updateIfPresent(dto.getType(), asset::setType);
         assetRepository.save(asset);
-
-       /* AssetResponseDto responseDto = modelMapper.map(asset, AssetResponseDto.class);
-        if (asset.getEmployee() != null) {
-            responseDto.setEmployeeId(asset.getEmployee().getEmployeeId());
-        }*/
         return modelMapper.map(asset, AssetResponseDto.class);
     }
 
     public AssetResponseDto assignAsset(Long assetId, Long employeeId) {
-
         Asset asset = assetRepository.findById(assetId).get();
         Employee employee = employeeRepository.findById(employeeId).get();
         asset.setEmployee(employee);
@@ -110,6 +91,4 @@ public class AssetServiceImpl implements AssetService {
         dto.setEmployeeId(employee.getEmployeeId());
         return dto;
     }
-
-
 }

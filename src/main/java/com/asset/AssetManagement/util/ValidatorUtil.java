@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.util.function.Consumer;
 
 @Component
 public class ValidatorUtil {
@@ -18,19 +19,19 @@ public class ValidatorUtil {
     private static AssetRepository assetRepository;
 
     @Autowired
-    public ValidatorUtil(EmployeeRepository empRepo, AssetRepository assetRepo){
+    public ValidatorUtil(EmployeeRepository empRepo, AssetRepository assetRepo) {
         ValidatorUtil.employeeRepository = empRepo;
         ValidatorUtil.assetRepository = assetRepo;
     }
 
-    public static void validateAssetId(Long id){
-        if(!assetRepository.existsById(id)){
+    public static void validateAssetId(Long id) {
+        if (!assetRepository.existsById(id)) {
             throw new ResourceNotFoundException("Asset ID not found: " + id);
         }
     }
 
-    public static void validateEmployeeId(Long id){
-        if(!employeeRepository.existsById(id)){
+    public static void validateEmployeeId(Long id) {
+        if (!employeeRepository.existsById(id)) {
             throw new ResourceNotFoundException("Employee ID not found: " + id);
         }
     }
@@ -49,27 +50,37 @@ public class ValidatorUtil {
         }
     }
 
-    public static void validateDate(LocalDate purchaseDate,LocalDate expireDate,LocalDate manufactureDate){
-        if(purchaseDate != null && expireDate!=null ){
-            if(expireDate.isBefore(purchaseDate)){
+    public static void validateDate(LocalDate purchaseDate, LocalDate expireDate, LocalDate manufactureDate) {
+        if (purchaseDate != null && expireDate != null) {
+            if (expireDate.isBefore(purchaseDate)) {
                 throw new InvalidAssetDateException("Expiry date cannot be before purchase date");
             }
         }
-        if(purchaseDate!=null && purchaseDate.isAfter(LocalDate.now())){
+        if (purchaseDate != null && purchaseDate.isAfter(LocalDate.now())) {
             throw new InvalidAssetDateException("Purchase date cannot be in future");
         }
-        if(manufactureDate!= null && manufactureDate.isAfter(LocalDate.now())){
+        if (manufactureDate != null && manufactureDate.isAfter(LocalDate.now())) {
             throw new InvalidAssetDateException("Manufacture date cannot be in future");
         }
     }
 
-    public static void serialValid(String serialNumber){
-        if(assetRepository.existsBySerialName(serialNumber)){
+    public static void serialValid(String serialNumber) {
+        if (assetRepository.existsBySerialName(serialNumber)) {
             throw new DuplicateAssetException("This serial number asset is already exist");
         }
     }
 
-    public static boolean isValue(String str){
-        return str!=null && !str.trim().isEmpty();
+    public static boolean isValue(String str) {
+        return str != null && !str.trim().isEmpty();
+    }
+
+    public static <T> void updateIfPresent(T value, Consumer<T> set) {
+        if (value != null) set.accept(value);
+    }
+
+    public static void updateIfValid(String value, Consumer<String> setter) {
+        if (value != null && !value.trim().isEmpty()) {
+            setter.accept(value);
+        }
     }
 }
