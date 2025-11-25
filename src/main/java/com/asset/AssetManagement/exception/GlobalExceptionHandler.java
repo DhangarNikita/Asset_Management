@@ -41,6 +41,17 @@ public class GlobalExceptionHandler {
                 HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(InvalidAssetAssignmentException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidAssignment(
+            InvalidAssetAssignmentException ex, HttpServletRequest request) {
+
+        return new ResponseEntity<>(
+                buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI(), "INVALID_ASSIGNMENT"),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationErrors(
             MethodArgumentNotValidException ex, HttpServletRequest request) {
