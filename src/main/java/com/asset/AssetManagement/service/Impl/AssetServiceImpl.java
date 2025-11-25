@@ -5,8 +5,6 @@ import com.asset.AssetManagement.dto.AssetResponseDto;
 import com.asset.AssetManagement.dto.AssetUpdateDto;
 import com.asset.AssetManagement.entity.Asset;
 import com.asset.AssetManagement.entity.Employee;
-import com.asset.AssetManagement.exception.DuplicateAssetException;
-import com.asset.AssetManagement.exception.InvalidAssetDateException;
 import com.asset.AssetManagement.exception.ResourceNotFoundException;
 import com.asset.AssetManagement.repository.AssetRepository;
 import com.asset.AssetManagement.repository.EmployeeRepository;
@@ -18,9 +16,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class AssetServiceImpl implements AssetService {

@@ -63,4 +63,5 @@ public class AssetController {
         ValidatorUtil.validateEmployeeId(requestDto.getEmployeeId());
         return ResponseEntity.ok(assetService.assignAsset(assetId, requestDto.getEmployeeId()));
     }
+
 }

@@ -21,6 +21,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -44,9 +46,9 @@ class AssetServiceImplTest {
         AssetRequestDto dto = new AssetRequestDto();
         dto.setModelName("ModelX");
         dto.setSerialName("SN123");
-        dto.setManufactureDate(java.time.LocalDate.now());
-        dto.setExpireDate(java.time.LocalDate.now().plusYears(1));
-        dto.setPurchaseDate(java.time.LocalDate.now().minusDays(10));
+        dto.setManufactureDate(LocalDate.now());
+        dto.setExpireDate(LocalDate.now().plusYears(1));
+        dto.setPurchaseDate(LocalDate.now().minusDays(10));
         dto.setAssignTo("John Doe");
         dto.setStatus(AssetStatus.ACTIVE);
         dto.setType(AssetType.LAPTOP);
@@ -81,6 +83,60 @@ class AssetServiceImplTest {
         assertEquals("ModelX", result.getModelName());
         verify(assetRepository).save(any(Asset.class));
     }
+
+    @Test
+    void testCreateAsset_WithoutEmployee_Success() {
+        AssetRequestDto dto = new AssetRequestDto();
+        dto.setModelName("ModelY");
+        dto.setSerialName("SN456");
+        dto.setManufactureDate(LocalDate.now());
+        dto.setExpireDate(LocalDate.now().plusYears(1));
+        dto.setPurchaseDate(LocalDate.now().minusDays(10));
+        dto.setAssignTo("Alice Smith");
+        dto.setStatus(AssetStatus.ACTIVE);
+        dto.setType(AssetType.DESKTOP);
+
+        Asset asset = Asset.builder()
+                .modelName(dto.getModelName())
+                .serialName(dto.getSerialName())
+                .manufactureDate(dto.getManufactureDate())
+                .expireDate(dto.getExpireDate())
+                .purchaseDate(dto.getPurchaseDate())
+                .assignTo(dto.getAssignTo())
+                .status(dto.getStatus())
+                .type(dto.getType())
+                .build();
+
+        AssetResponseDto responseDto = new AssetResponseDto();
+        responseDto.setModelName("ModelY");
+
+        when(assetRepository.save(any(Asset.class))).thenReturn(asset);
+        when(modelMapper.map(any(Asset.class), eq(AssetResponseDto.class))).thenReturn(responseDto);
+
+        AssetResponseDto result = assetService.createAsset(dto);
+
+        assertNotNull(result);
+        assertEquals("ModelY", result.getModelName());
+        verify(assetRepository).save(any(Asset.class));
+    }
+
+    @Test
+    void testCreateAsset_EmployeeNotFound() {
+        AssetRequestDto dto = new AssetRequestDto();
+        dto.setModelName("ModelZ");
+        dto.setSerialName("SN789");
+        dto.setEmployeeId(99L);
+
+        when(employeeRepository.findById(99L)).thenReturn(java.util.Optional.empty());
+
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            assetService.createAsset(dto);
+        });
+
+        assertEquals("Employee not found", exception.getMessage());
+        verify(assetRepository, never()).save(any(Asset.class));
+    }
+
 
     @Test
     void testGetAsset_Success() {
@@ -206,4 +262,6 @@ class AssetServiceImplTest {
         verify(assetRepository).save(asset);
         verify(modelMapper).map(asset, AssetResponseDto.class);
     }
+
+
 }
