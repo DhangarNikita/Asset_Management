@@ -1,6 +1,5 @@
 package com.asset.AssetManagement.service.Impl;
 
-import com.asset.AssetManagement.dao.EmployeeDao;
 import com.asset.AssetManagement.dto.AssetRequestDto;
 import com.asset.AssetManagement.dto.AssetResponseDto;
 import com.asset.AssetManagement.dto.AssetUpdateDto;
@@ -19,31 +18,29 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
-
 public class AssetServiceImpl implements AssetService {
     private final ModelMapper modelMapper;
     private final AssetRepository assetRepository;
     private final EmployeeRepository employeeRepository;
-    private final EmployeeDao employeeDao;
 
     @Autowired
-    public AssetServiceImpl(AssetRepository assetRepository, EmployeeRepository employeeRepository,ModelMapper modelMapper,EmployeeDao employeeDao) {
-        this.employeeDao = employeeDao;
+    public AssetServiceImpl(AssetRepository assetRepository, EmployeeRepository employeeRepository,ModelMapper modelMapper) {
         this.assetRepository = assetRepository;
         this.employeeRepository = employeeRepository;
         this.modelMapper = modelMapper;
     }
 
     public AssetResponseDto createAsset(AssetRequestDto dto) {
-        Employee employee = employeeDao.getEmployeeOrDefault(dto.getEmployeeId());
+        if(dto.getAssignTo() == null){
+            dto.setAssignTo("Unassigned");
+        }
         Asset asset = Asset.builder()
                 .modelName(dto.getModelName())
                 .serialName(dto.getSerialName())
                 .manufactureDate(dto.getManufactureDate())
                 .expireDate(dto.getExpireDate())
                 .purchaseDate(dto.getPurchaseDate())
-                .assignTo(dto.getAssignTo() != null ? dto.getAssignTo() : "Unassigned")
-                .employee(employee)
+                .assignTo(dto.getAssignTo())
                 .status(dto.getStatus())
                 .type(dto.getType())
                 .build();
