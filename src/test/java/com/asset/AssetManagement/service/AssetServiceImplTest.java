@@ -215,4 +215,10 @@ class AssetServiceImplTest {
         verify(assetRepository).save(asset);
         verify(modelMapper).map(asset, AssetResponseDto.class);
     }
+
+    @Test
+    void testUpdateAssetNotFound() {
+        when(assetRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundException.class, () -> assetService.updateAsset(1L, new AssetUpdateDto()));
+    }
 }

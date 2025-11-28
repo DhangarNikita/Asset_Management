@@ -14,19 +14,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.ResponseEntity;
-
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,7 +48,6 @@ public class AssetControllerTest {
                 .build();
         AssetResponseDto response = new AssetResponseDto();
         when(assetService.createAsset(dto)).thenReturn(response);
-
         try (MockedStatic<ValidatorUtil> util = mockStatic(ValidatorUtil.class)) {
             ResponseEntity<AssetResponseDto> result = assetController.createAsset(dto);
             util.verify(() -> ValidatorUtil.serialValid("SN123"));
@@ -165,6 +161,5 @@ public class AssetControllerTest {
             assertEquals("Asset ID not found: " + assetId, ex.getMessage());
         }
     }
-
 }
 

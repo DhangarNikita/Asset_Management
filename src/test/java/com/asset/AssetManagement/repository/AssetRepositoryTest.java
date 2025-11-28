@@ -3,7 +3,8 @@ import com.asset.AssetManagement.entity.Asset;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DataJpaTest
 class AssetRepositoryTest {
@@ -20,7 +21,6 @@ class AssetRepositoryTest {
         asset.setPurchaseDate(null);
         asset.setExpireDate(null);
         assetRepository.save(asset);
-
         boolean exists = assetRepository.existsBySerialName("SN123");
         assertTrue(exists);
     }

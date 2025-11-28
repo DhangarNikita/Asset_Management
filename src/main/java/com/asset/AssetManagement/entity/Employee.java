@@ -19,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Employee {
+public class  Employee {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
