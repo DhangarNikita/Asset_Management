@@ -9,5 +9,4 @@ class AssetManagementApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }

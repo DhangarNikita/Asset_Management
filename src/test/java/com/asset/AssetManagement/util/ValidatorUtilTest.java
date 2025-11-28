@@ -12,7 +12,8 @@ import java.time.LocalDate;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class ValidatorUtilTest {
     private AssetRepository assetRepository;

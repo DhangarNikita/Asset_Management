@@ -76,10 +76,12 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>2.6.0</version>
+            <version>2.8.14</version>  <!-- pick the latest 2.8.x available -->
         </dependency>
 
+
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
