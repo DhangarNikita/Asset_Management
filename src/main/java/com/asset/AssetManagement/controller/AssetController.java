@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +29,7 @@ public class AssetController {
     public ResponseEntity<AssetResponseDto> createAsset(@Valid @RequestBody AssetRequestDto dto) {
         ValidatorUtil.serialValid(dto.getSerialName());
         ValidatorUtil.validateDate(dto.getPurchaseDate(),dto.getExpireDate(),dto.getManufactureDate());
-        return ResponseEntity.ok(assetService.createAsset(dto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(assetService.createAsset(dto));
     }
 
     @GetMapping("/{id}")
@@ -48,7 +49,7 @@ public class AssetController {
     public ResponseEntity<String> delete(@PathVariable Long id){
         ValidatorUtil.validateAssetId(id);
         assetService.delete(id);
-        return ResponseEntity.ok("Asset deleted successfully");
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
@@ -70,5 +71,4 @@ public class AssetController {
         ValidatorUtil.validateEmployeeId(requestDto.getEmployeeId());
         return ResponseEntity.ok(assetService.assignAsset(assetId, requestDto.getEmployeeId()));
     }
-
 }
