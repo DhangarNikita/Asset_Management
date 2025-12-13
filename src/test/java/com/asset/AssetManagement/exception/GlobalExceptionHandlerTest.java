@@ -5,7 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -23,7 +25,7 @@ class GlobalExceptionHandlerTest {
     void testHandleDuplicateAsset() {
         when(request.getRequestURI()).thenReturn("/asset/dup");
         DuplicateAssetException ex = new DuplicateAssetException("Duplicate serial");
-        ResponseEntity<ErrorResponse> response = handler.handleDuplicate(ex, request);
+        ResponseEntity<ErrorResponse> response = handler.handleDuplicateAsset(ex, request);
         assertEquals(409, response.getStatusCode().value());
         assertEquals("DUPLICATE_ASSET", response.getBody().getErrorCode());
         assertEquals("/asset/dup", response.getBody().getPath());
@@ -42,9 +44,9 @@ class GlobalExceptionHandlerTest {
     void testHandleResourceNotFound() {
         when(request.getRequestURI()).thenReturn("/asset/notfound");
         ResourceNotFoundException ex = new ResourceNotFoundException("Asset not found");
-        ResponseEntity<ErrorResponse> response = handler.resourceNotFound(ex, request);
+        ResponseEntity<ErrorResponse> response = handler.handleResourceNotFound(ex, request);
         assertEquals(404, response.getStatusCode().value());
-        assertEquals("RESOURS_NOT_FOUND", response.getBody().getErrorCode());
+        assertEquals("RESOURCE_NOT_FOUND", response.getBody().getErrorCode());
     }
 
     @Test
@@ -55,4 +57,16 @@ class GlobalExceptionHandlerTest {
         assertEquals(400, response.getStatusCode().value());
         assertEquals("INVALID_ASSIGNMENT", response.getBody().getErrorCode());
     }
+
+    @Test
+    void testHandleGeneralException() {
+        when(request.getRequestURI()).thenReturn("/asset/upload");
+        Exception ex = new Exception("Something went wrong");
+        ResponseEntity<ErrorResponse> response = handler.handleGeneralException(ex, request);
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
+        //assertEquals("Something went wrong", response.getBody().getMessage());
+        assertEquals("/asset/upload", response.getBody().getPath());
+        assertEquals("INTERNAL_ERROR", response.getBody().getErrorCode());
+    }
+
 }
