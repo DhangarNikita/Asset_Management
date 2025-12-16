@@ -1,5 +1,6 @@
 package com.asset.AssetManagement.scheduler;
 
+import com.asset.AssetManagement.constants.Constants;
 import com.asset.AssetManagement.service.ExpiredAssetService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,12 +14,16 @@ import org.springframework.stereotype.Component;
 public class ExpiredAssetScheduler {
 
     private static final Logger logger = LoggerFactory.getLogger(ExpiredAssetScheduler.class);
-    @Autowired
-    private ExpiredAssetService expiredAssetService;
+    private final ExpiredAssetService expiredAssetService;
 
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Autowired
+    public ExpiredAssetScheduler(ExpiredAssetService expiredAssetService) {
+        this.expiredAssetService = expiredAssetService;
+    }
+
+    @Scheduled(cron = Constants.EXPIRED_ASSET_CRON)
     public void run(){
         expiredAssetService.moveExpiredAssets();
-        logger.info("Expired assets moved successfully.");
+        logger.info(Constants.EXPIRED_ASSET);
     }
 }

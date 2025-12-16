@@ -1,5 +1,6 @@
 package com.asset.AssetManagement.controller;
 
+import com.asset.AssetManagement.constants.Constants;
 import com.asset.AssetManagement.dto.AssetRequestDto;
 import com.asset.AssetManagement.dto.AssetResponseDto;
 import com.asset.AssetManagement.dto.AssetUpdateDto;
@@ -54,7 +55,7 @@ public class AssetController {
 
     @GetMapping
     @Operation(summary = "Get all assets with pagination")
-    public ResponseEntity<Page<AssetResponseDto>> getAll(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<Page<AssetResponseDto>> getAll(@RequestParam(defaultValue = Constants.DEFAULT_PAGE) int page, @RequestParam(defaultValue = Constants.DEFAULT_SIZE) int size) {
         return ResponseEntity.ok(assetService.getAllAsset(page, size));
     }
 
@@ -87,21 +88,21 @@ public class AssetController {
 
     @PostMapping("/upload")
     @Operation(summary = "Upload CSV file and run batch job to process assets")
-    public ResponseEntity<String> uploadCsvAndRunBatch(@RequestParam("file") MultipartFile file) throws Exception {
+    public ResponseEntity<String> uploadCsvAndRunBatch(@RequestParam(Constants.FILE_PARAM) MultipartFile file) throws Exception {
         if (file.isEmpty()) {
-            throw new IllegalArgumentException("Uploaded file cannot be empty");
+            throw new IllegalArgumentException(Constants.FILE_EMPTY);
         }
-        String filePath = "D:/temp/" + file.getOriginalFilename();
+        String filePath = Constants.TEMP_DIR + file.getOriginalFilename();
         File convertFile = new File(filePath);
         convertFile.getParentFile().mkdirs();
         try (FileOutputStream fos = new FileOutputStream(convertFile)) {
             fos.write(file.getBytes());
         }
         JobParameters params = new JobParametersBuilder()
-                .addString("filePath", filePath)
-                .addLong("time", System.currentTimeMillis())
+                .addString(Constants.FILE_PATH, filePath)
+                .addLong(Constants.TIME_PARAM, System.currentTimeMillis())
                 .toJobParameters();
         JobExecution jobExecution = jobLauncher.run(assetJob, params);
-        return ResponseEntity.ok("Batch Job Started! Status: " + jobExecution.getStatus());
+        return ResponseEntity.ok(Constants.Batch_Job_Started + jobExecution.getStatus());
     }
 }

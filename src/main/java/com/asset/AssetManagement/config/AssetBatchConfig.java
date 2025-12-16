@@ -1,5 +1,6 @@
 package com.asset.AssetManagement.config;
 
+import com.asset.AssetManagement.constants.Constants;
 import com.asset.AssetManagement.dto.AssetCsvDto;
 import com.asset.AssetManagement.entity.Asset;
 import com.asset.AssetManagement.enums.AssetStatus;
@@ -35,21 +36,21 @@ public class AssetBatchConfig {
     public FlatFileItemReader<AssetCsvDto> assetItemReader(@Value("#{jobParameters['filePath']}") String filePath) {
         FlatFileItemReader<AssetCsvDto> reader = new FlatFileItemReader<>();
         reader.setResource(new FileSystemResource(filePath));
-        reader.setLinesToSkip(1);
+        reader.setLinesToSkip(Constants.LINE_SKIP);
 
         DefaultLineMapper<AssetCsvDto> lineMapper = new DefaultLineMapper<>();
         DelimitedLineTokenizer tokenizer = new DelimitedLineTokenizer();
-        tokenizer.setNames("modelName", "serialName", "manufactureDate", "expireDate", "purchaseDate", "status", "type");
+        tokenizer.setNames(Constants.MODEL_NAME, Constants.SERIAL_NAME, Constants.MANUFACTURE_DATE, Constants.EXPIRE_DATE, Constants.PURCHASE_DATE, Constants.STATUS, Constants.TYPE);
         lineMapper.setLineTokenizer(tokenizer);
 
         lineMapper.setFieldSetMapper(fieldSet -> new AssetCsvDto(
-            fieldSet.readString("modelName"),
-            fieldSet.readString("serialName"),
-            fieldSet.readString("manufactureDate"),
-            fieldSet.readString("expireDate"),
-            fieldSet.readString("purchaseDate"),
-            fieldSet.readString("status"),
-            fieldSet.readString("type")
+            fieldSet.readString(Constants.MODEL_NAME),
+            fieldSet.readString(Constants.SERIAL_NAME),
+            fieldSet.readString(Constants.MANUFACTURE_DATE),
+            fieldSet.readString(Constants.EXPIRE_DATE),
+            fieldSet.readString(Constants.PURCHASE_DATE),
+            fieldSet.readString(Constants.STATUS),
+            fieldSet.readString(Constants.TYPE)
         ));
         reader.setLineMapper(lineMapper);
         return reader;
@@ -58,7 +59,7 @@ public class AssetBatchConfig {
     @Bean
     public ItemProcessor<AssetCsvDto, Asset> assetItemProcessor() {
         return item -> {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(Constants.DATE_FORMAT);
             return Asset.builder()
                     .modelName(item.getModelName())
                     .serialName(item.getSerialName())
@@ -85,8 +86,8 @@ public class AssetBatchConfig {
                           FlatFileItemReader<AssetCsvDto> reader,
                           ItemProcessor<AssetCsvDto, Asset> processor,
                           ItemWriter<Asset> writer) {
-        return new StepBuilder("assetStep", jobRepository)
-                .<AssetCsvDto, Asset>chunk(1000, transactionManager)
+        return new StepBuilder(Constants.ASSET_STEP, jobRepository)
+                .<AssetCsvDto, Asset>chunk(Constants.CHUNK_SIZE, transactionManager)
                 .reader(reader)
                 .processor(processor)
                 .writer(writer)
@@ -95,7 +96,7 @@ public class AssetBatchConfig {
 
     @Bean
     public Job assetJob(JobRepository jobRepository, Step assetStep, JobExecutionListener listener) {
-        return new JobBuilder("assetJob", jobRepository)
+        return new JobBuilder(Constants.ASSET_JOB, jobRepository)
                 .listener(listener)
                 .start(assetStep)
                 .build();

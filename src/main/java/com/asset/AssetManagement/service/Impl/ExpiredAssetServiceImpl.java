@@ -15,11 +15,14 @@ import java.util.List;
 @Service
 public class ExpiredAssetServiceImpl implements ExpiredAssetService {
 
-    @Autowired
-    private AssetRepository assetRepository;
+    private final AssetRepository assetRepository;
+    private final ArchivedAssetRepository archivedAssetRepository;
 
     @Autowired
-    private ArchivedAssetRepository archivedAssetRepository;
+    public ExpiredAssetServiceImpl(AssetRepository assetRepository, ArchivedAssetRepository archivedAssetRepository) {
+        this.assetRepository = assetRepository;
+        this.archivedAssetRepository = archivedAssetRepository;
+    }
 
     @Transactional
     @Override

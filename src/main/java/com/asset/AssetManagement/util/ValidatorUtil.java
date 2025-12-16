@@ -1,5 +1,6 @@
 package com.asset.AssetManagement.util;
 
+import com.asset.AssetManagement.constants.Constants;
 import com.asset.AssetManagement.entity.Asset;
 import com.asset.AssetManagement.exception.DuplicateAssetException;
 import com.asset.AssetManagement.exception.InvalidAssetDateException;
@@ -26,13 +27,13 @@ public class ValidatorUtil {
 
     public static void validateAssetId(Long id) {
         if (!assetRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Asset ID not found: " + id);
+            throw new ResourceNotFoundException(Constants.ASSET_NOT_FOUND + id);
         }
     }
 
     public static void validateEmployeeId(Long id) {
         if (!employeeRepository.existsById(id)) {
-            throw new ResourceNotFoundException("Employee ID not found: " + id);
+            throw new ResourceNotFoundException(Constants.EMPLOYEE_NOT_FOUND + id);
         }
     }
 
@@ -44,7 +45,7 @@ public class ValidatorUtil {
                 Asset current = assetRepository.findById(currentAssetId).orElse(null);
 
                 if (current != null && !serialName.equals(current.getSerialName())) {
-                    throw new DuplicateAssetException("Serial number already exists: " + serialName);
+                    throw new DuplicateAssetException(Constants.SERIAL_NUMBER_EXIST + serialName);
                 }
             }
         }
@@ -53,20 +54,20 @@ public class ValidatorUtil {
     public static void validateDate(LocalDate purchaseDate, LocalDate expireDate, LocalDate manufactureDate) {
         if (purchaseDate != null && expireDate != null) {
             if (expireDate.isBefore(purchaseDate)) {
-                throw new InvalidAssetDateException("Expiry date cannot be before purchase date");
+                throw new InvalidAssetDateException(Constants.EXPIRE_BEFORE_PURCHASE);
             }
         }
         if (purchaseDate != null && purchaseDate.isAfter(LocalDate.now())) {
-            throw new InvalidAssetDateException("Purchase date cannot be in future");
+            throw new InvalidAssetDateException(Constants.PURCHASE_IN_FUTURE);
         }
         if (manufactureDate != null && manufactureDate.isAfter(LocalDate.now())) {
-            throw new InvalidAssetDateException("Manufacture date cannot be in future");
+            throw new InvalidAssetDateException(Constants.MANUFACTURE_IN_FUTURE);
         }
     }
 
     public static void serialValid(String serialNumber) {
         if (assetRepository.existsBySerialName(serialNumber)) {
-            throw new DuplicateAssetException("This serial number asset is already exist");
+            throw new DuplicateAssetException(Constants.SERIAL_NUMBER_EXIST + serialNumber);
         }
     }
 

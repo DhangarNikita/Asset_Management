@@ -1,5 +1,6 @@
 package com.asset.AssetManagement.service.Impl;
 
+import com.asset.AssetManagement.constants.Constants;
 import com.asset.AssetManagement.dto.AssetRequestDto;
 import com.asset.AssetManagement.dto.AssetResponseDto;
 import com.asset.AssetManagement.dto.AssetUpdateDto;
@@ -32,7 +33,7 @@ public class AssetServiceImpl implements AssetService {
 
     public AssetResponseDto createAsset(AssetRequestDto dto) {
         if(dto.getAssignTo() == null){
-            dto.setAssignTo("Unassigned");
+            dto.setAssignTo(Constants.UNASSIGNED);
         }
         Asset asset = Asset.builder()
                 .modelName(dto.getModelName())
@@ -50,7 +51,7 @@ public class AssetServiceImpl implements AssetService {
 
     public AssetResponseDto getAsset(Long id) {
         Asset asset = assetRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Asset not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(Constants.ASSET_NOT_FOUND));
         return modelMapper.map(asset, AssetResponseDto.class);
     }
 
@@ -66,7 +67,7 @@ public class AssetServiceImpl implements AssetService {
 
     public AssetResponseDto updateAsset(Long id, AssetUpdateDto dto) {
         Asset asset = assetRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Asset not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(Constants.ASSET_NOT_FOUND));
         ValidatorUtil.updateIfValid(dto.getSerialName(), asset::setSerialName);
         ValidatorUtil.updateIfValid(dto.getModelName(), asset::setModelName);
         ValidatorUtil.updateIfPresent(dto.getManufactureDate(), asset::setManufactureDate);

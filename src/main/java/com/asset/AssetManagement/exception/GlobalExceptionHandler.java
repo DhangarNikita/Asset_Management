@@ -1,5 +1,6 @@
 package com.asset.AssetManagement.exception;
 
+import com.asset.AssetManagement.constants.Constants;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,25 +21,25 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateAssetException.class)
     public ResponseEntity<ErrorResponse> handleDuplicateAsset(DuplicateAssetException ex, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI(), "DUPLICATE_ASSET"));
+                .body(buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage(), request.getRequestURI(), Constants.DUPLICATE_ASSET));
     }
 
     @ExceptionHandler(InvalidAssetDateException.class)
     public ResponseEntity<ErrorResponse> handleInvalidDates(InvalidAssetDateException ex, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI(), "INVALID_DATE"));
+                .body(buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI(), Constants.INVALID_DATE));
     }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI(), "RESOURCE_NOT_FOUND"));
+                .body(buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(), request.getRequestURI(), Constants.RESOURCE_NOT_FOUND));
     }
 
     @ExceptionHandler(InvalidAssetAssignmentException.class)
     public ResponseEntity<ErrorResponse> handleInvalidAssignment(InvalidAssetAssignmentException ex, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI(), "INVALID_ASSIGNMENT"));
+                .body(buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI(), Constants.INVALID_ASSIGNMENT));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -48,25 +49,25 @@ public class GlobalExceptionHandler {
             message = ex.getBindingResult().getFieldError().getDefaultMessage();
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(buildErrorResponse(HttpStatus.BAD_REQUEST, message, request.getRequestURI(), "VALIDATION_ERROR"));
+                .body(buildErrorResponse(HttpStatus.BAD_REQUEST, message, request.getRequestURI(), Constants.VALIDATION_ERROR));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex, HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI(), "INVALID_INPUT"));
+                .body(buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), request.getRequestURI(), Constants.INVALID_INPUT));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception ex, HttpServletRequest request) {
         ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request.getRequestURI(), "INTERNAL_ERROR"));
+                .body(buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage(), request.getRequestURI(), Constants.INTERNAL_SERVER_ERROR));
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ErrorResponse> handleMaxUploadSize(MaxUploadSizeExceededException ex,HttpServletRequest request) {
         return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
-                .body(buildErrorResponse(HttpStatus.PAYLOAD_TOO_LARGE, "File size too large", request.getRequestURI(), "FILE_SIZE_EXCEEDED"));
+                .body(buildErrorResponse(HttpStatus.PAYLOAD_TOO_LARGE, Constants.LARGE_FILE_MESSAGE, request.getRequestURI(), Constants.FILE_SIZE_EXCEEDED));
     }
 }
